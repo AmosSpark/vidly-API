@@ -10,6 +10,14 @@ router.get("/", genreController.control_Get_All);
 
 router.get("/:id", genreController.control_Get_A_Genre);
 
+// GET FIRST N GENRES
+
+router.get("/first/:n", genreController.control_Get_First_N_Amount_Of_Genre);
+
+// GET N AMOUNT OF GENRES
+
+router.get("/random/:n", genreController.control_Get_Random_Genre);
+
 // CREATE A GENRE
 
 router.post("/", genreController.control_Post_A_Genre);

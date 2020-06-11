@@ -21,6 +21,38 @@ exports.control_Get_A_Genre = (req, res) => {
   }
 };
 
+// CONTROL - GET FIRST N AMOUNT OF GENRES
+
+exports.control_Get_First_N_Amount_Of_Genre = (req, res) => {
+  let n = parseInt(req.params.n);
+  const firstNamount = genres.slice(0, n);
+  // validate
+  if (n > genres.length) {
+    res.status(400).json({
+      get: `error, requested number of genre should not be more than ${genres.length}`,
+    });
+  } else {
+    res.json({ get: true, firstNamount });
+  }
+};
+
+// CONTROL - GET N AMOUNT OF RANDOM GENRES
+
+exports.control_Get_Random_Genre = (req, res) => {
+  const n = parseInt(req.params.n);
+  const newGenres = [...genres];
+  const shuffle = newGenres.sort(() => 0.5 - Math.random()); // shuffle genres
+  let select = shuffle.slice(0, n); // select desired
+  // validate
+  if (n > newGenres.length) {
+    res.status(400).json({
+      random: `error, requested number of genre should not be more than ${genres.length}`,
+    });
+  } else {
+    res.json({ get: true, select });
+  }
+};
+
 // CONTROL - POST A GENRE
 
 exports.control_Post_A_Genre = (req, res) => {
