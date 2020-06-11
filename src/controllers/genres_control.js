@@ -1,4 +1,4 @@
-const genres = require("../routes/api/_genres.json"); // IMPORT genres.json
+const genres = require("../models/_genres.json"); // IMPORT genres.json
 
 // CONTROL - GET ALL GENRES
 
@@ -10,10 +10,10 @@ exports.control_Get_All = (req, res) => {
 
 exports.control_Get_A_Genre = (req, res) => {
   const idFound = genres.find((genre) => genre.id === parseInt(req.params.id));
-  const filter = genres.filter((genre) => genre.id === parseInt(req.params.id));
+  const genre = genres.filter((genre) => genre.id === parseInt(req.params.id));
   // validate
   if (idFound) {
-    res.json({ get: true, filter });
+    res.json({ get: true, genre });
   } else {
     res
       .status(400)
@@ -56,7 +56,7 @@ exports.control_Update_A_genre = (req, res) => {
   } else {
     res
       .status(400)
-      .json({ put: ` error, genre id: ${req.params.id} not available` });
+      .json({ update: ` error, genre id: ${req.params.id} not available` });
   }
 };
 
@@ -67,8 +67,8 @@ exports.control_Delete_A_genre = (req, res) => {
   // validate
   if (idFound) {
     const index = genres.indexOf(idFound); // get index of found genre
-    genres.splice(index, 1); // remove genre from array of genres
-    res.json({ delete: "true", idFound });
+    const genre = genres.splice(index, 1); // remove genre from array of genres
+    res.json({ delete: "true", genre });
   } else {
     res
       .status(400)
