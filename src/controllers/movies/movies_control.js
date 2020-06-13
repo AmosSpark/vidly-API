@@ -1,4 +1,4 @@
-const genres = require("../models/_genres.json"); // IMPORT genres.json
+const genres = require("../../models/movies/movies.json"); // IMPORT movies API data
 
 // CONTROL - GET ALL GENRES
 
