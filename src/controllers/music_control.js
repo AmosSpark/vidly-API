@@ -1,6 +1,6 @@
-const genres = require("../../models/movies/movies.json"); // IMPORT movies API data
+const genres = require("../models/music.json"); // IMPORT music API data
 
-// CONTROL - GET ALL GENRES
+// CONTROL - GET ALL GENRE
 
 exports.control_Get_All = (req, res) => {
   res.json(genres);
@@ -59,12 +59,12 @@ exports.control_Post_A_Genre = (req, res) => {
   const newGenre = {
     id: genres.length + 1,
     genre: req.body.genre,
-    star: req.body.star,
+    downloads: req.body.downloads,
   };
   const genre = newGenre;
   // validate
-  if (!newGenre.genre || !newGenre.star) {
-    res.status(400).json({ post: "error, genre and star input required" });
+  if (!newGenre.genre || !newGenre.downloads) {
+    res.status(400).json({ post: "error, genre and downloads input required" });
   } else {
     genres.push(newGenre);
     res.json({ post: "true", genre });
@@ -80,8 +80,10 @@ exports.control_Update_A_genre = (req, res) => {
     // validate
     genres.forEach((genre) => {
       if (genre.id === parseInt(req.params.id)) {
-        genre.genre = updatedGenre.name ? updatedGenre.genre : genre.genre;
-        genre.star = updatedGenre.star ? updatedGenre.star : genre.star;
+        genre.genre = updatedGenre.genre ? updatedGenre.genre : genre.genre;
+        genre.downloads = updatedGenre.downloads
+          ? updatedGenre.downloads
+          : genre.star;
         res.json({ upate: "true", genre });
       }
     });
