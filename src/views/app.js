@@ -1,8 +1,29 @@
 const express = require("express"),
   app = express();
-const moviesView = require("./movies_router"); // IMPORT movies view
-const musicView = require("./music_router"); // IMPORT music view
-const RequestController = require("../controllers/404_control"); // IMPORT wrong request controller
+
+const mongoose = require("mongoose");
+mongoose
+  .connect("mongodb://localhost/movies_genres", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() =>
+    console.log(
+      `Status: ${mongoose.connection.readyState} [Connected to mongoDB...]`
+    )
+  )
+  .catch((error) =>
+    console.error(
+      `Status: ${mongoose.connection.readyState} [Couldn't connect to mongoDB...],`
+    )
+  );
+
+// VIEWS
+const moviesView = require("./movies_router");
+const musicView = require("./music_router");
+
+// REQUEST CONTROLLERS
+const RequestController = require("../controllers/404_control");
 
 // BODY-PARSER MW
 app.use(express.json()); // handle raw json

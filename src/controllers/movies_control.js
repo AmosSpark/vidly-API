@@ -1,35 +1,39 @@
-const genres = require("../models/movies.json"); // IMPORT movies API data
+const Movie = require("../models/db_models/movies_model");
 
 // CONTROL - GET ALL GENRES
 
-exports.control_Get_All = (req, res) => {
-  res.json(genres);
+exports.control_Get_All = async (req, res) => {
+  const findMovies = await Movie.find(), // get all
+    movies = findMovies;
+  res.json(movies);
 };
 
 // CONTROL - GET A GENRE
 
-exports.control_Get_A_Genre = (req, res) => {
-  const idFound = genres.find((genre) => genre.id === parseInt(req.params.id));
-  const genre = genres.filter((genre) => genre.id === parseInt(req.params.id));
+exports.control_Get_A_Genre = async (req, res) => {
+  const id = req.params.id;
+  const findMovie = await Movie.findById(id); // get by id
   // validate
-  if (idFound) {
-    res.json({ get: true, genre });
+  if (findMovie) {
+    const movie = findMovie;
+    res.json({ get: true, movie });
   } else {
-    res
-      .status(400)
-      .json({ get: `error, genre id: ${req.params.id} not available` });
+    res.status(400).json({ get: `error, genre id: ${id} not available` });
   }
 };
 
 // CONTROL - GET FIRST N AMOUNT OF GENRES
 
-exports.control_Get_First_N_Amount_Of_Genre = (req, res) => {
-  let n = parseInt(req.params.n);
-  const firstNamount = genres.slice(0, n);
+exports.control_Get_First_N_Amount_Of_Genre = async (req, res) => {
+  const n = parseInt(req.params.n);
+  const findMovies = await Movie.find().limit(n); // get all and limit to n
+  const firstNamount = findMovies;
   // validate
-  if (n > genres.length) {
+  if (n > Movie.length + 1) {
     res.status(400).json({
-      get: `error, requested number of genre should not be more than ${genres.length}`,
+      get: `error, requested number of genre should not be more than ${
+        Movie.length + 1
+      }`,
     });
   } else {
     res.json({ get: true, firstNamount });
@@ -38,13 +42,13 @@ exports.control_Get_First_N_Amount_Of_Genre = (req, res) => {
 
 // CONTROL - GET N AMOUNT OF RANDOM GENRES
 
-exports.control_Get_Random_Genre = (req, res) => {
-  const n = parseInt(req.params.n);
-  const newGenres = [...genres];
-  const shuffle = newGenres.sort(() => 0.5 - Math.random()); // shuffle genres
-  let select = shuffle.slice(0, n); // select desired
+exports.control_Get_Random_Genre = async (req, res) => {
+  const n = parseInt(req.params.n); // N amount
+  const findMovies = await Movie.find(); // Get all movies
+  const shuffle = findMovies.sort(() => 0.5 - Math.random()); // Shuffle
+  let select = shuffle.slice(0, n); // Select N amount
   // validate
-  if (n > newGenres.length) {
+  if (n > findMovies.length) {
     res.status(400).json({
       random: `error, requested number of genre should not be more than ${genres.length}`,
     });
@@ -55,55 +59,59 @@ exports.control_Get_Random_Genre = (req, res) => {
 
 // CONTROL - POST A GENRE
 
-exports.control_Post_A_Genre = (req, res) => {
-  const newGenre = {
-    id: genres.length + 1,
+exports.control_Post_A_Genre = async (req, res) => {
+  // create a new movie
+  const newMovie = new Movie({
     genre: req.body.genre,
     star: req.body.star,
-  };
-  const genre = newGenre;
+  });
   // validate
-  if (!newGenre.genre || !newGenre.star) {
-    res.status(400).json({ post: "error, genre and star input required" });
+  if (!newMovie.genre || !newMovie.star) {
+    res.status(400).json({
+      post:
+        "error, genre: alphanumeric and star: number characters are required",
+    });
+  } else if (newMovie.genre.length < 3 || newMovie.star > 5) {
+    res.status(400).json({
+      post:
+        "error, genre: should be more than 2 alphanumeric characters and star: should be a number between 1 - 5",
+    });
   } else {
-    genres.push(newGenre);
-    res.json({ post: "true", genre });
+    const movie = await newMovie.save();
+    res.json({ post: "true", movie });
   }
 };
 
 // CONTROL - UPDATE A GENRE
 
-exports.control_Update_A_genre = (req, res) => {
-  const idFound = genres.find((genre) => genre.id === parseInt(req.params.id));
-  if (idFound) {
+exports.control_Update_A_genre = async (req, res) => {
+  const id = req.params.id;
+  const findMovie = await Movie.findById(id); // get by id
+  // validate
+  if (findMovie) {
     const updatedGenre = req.body;
-    // validate
-    genres.forEach((genre) => {
-      if (genre.id === parseInt(req.params.id)) {
-        genre.genre = updatedGenre.name ? updatedGenre.genre : genre.genre;
-        genre.star = updatedGenre.star ? updatedGenre.star : genre.star;
-        res.json({ upate: "true", genre });
-      }
+    // update
+    findMovie.set({
+      genre: updatedGenre.genre ? updatedGenre.genre : findMovie.genre,
+      star: updatedGenre.star ? updatedGenre.star : findMovie.star,
     });
+    const movie = await findMovie.save();
+    res.json({ upate: "true", movie });
   } else {
-    res
-      .status(400)
-      .json({ update: ` error, genre id: ${req.params.id} not available` });
+    res.status(400).json({ update: `error, genre id: ${id} not available` });
   }
 };
 
 // CONTROL - DELETE A GENRE
 
-exports.control_Delete_A_genre = (req, res) => {
-  const idFound = genres.find((genre) => genre.id === parseInt(req.params.id));
+exports.control_Delete_A_genre = async (req, res) => {
+  const id = req.params.id;
+  const findMovie = await Movie.findByIdAndRemove(id);
   // validate
-  if (idFound) {
-    const index = genres.indexOf(idFound); // get index of found genre
-    const genre = genres.splice(index, 1); // remove genre from array of genres
-    res.json({ delete: "true", genre });
+  if (findMovie) {
+    const movie = findMovie;
+    res.json({ delete: "true", movie });
   } else {
-    res
-      .status(400)
-      .json({ delete: `error, genre id: ${req.params.id} not available` });
+    res.status(400).json({ delete: `error, genre id: ${id} not available` });
   }
 };
