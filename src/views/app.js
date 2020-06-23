@@ -14,7 +14,8 @@ mongoose
   )
   .catch((error) =>
     console.error(
-      `Status: ${mongoose.connection.readyState} [Couldn't connect to mongoDB...],`
+      `Status: ${mongoose.connection.readyState} [Couldn't connect to mongoDB...]`,
+      error
     )
   );
 
